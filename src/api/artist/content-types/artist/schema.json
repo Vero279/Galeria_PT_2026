@@ -13,13 +13,13 @@
   "attributes": {
     "name": {
       "type": "string",
-      "required": true
+      "required": true,
+      "unique": true
     },
     "slug": {
       "type": "uid",
       "targetField": "name",
-      "required": true,
-      "unique": true
+      "required": true
     },
     "bio": {
       "type": "richtext"
@@ -33,18 +33,16 @@
     "medium": {
       "type": "string"
     },
-    "is_published": {
+    "isPublished": {
       "type": "boolean",
       "required": true,
-      "default": true
+      "default": false
     },
     "rating": {
       "type": "decimal",
-      "default": 0
-    },
-    "total_reviews": {
-      "type": "integer",
-      "default": 0
+      "default": 0,
+      "min": 0,
+      "max": 5
     },
     "city": {
       "type": "relation",
@@ -72,14 +70,28 @@
     },
     "artist_events": {
       "type": "relation",
-      "relation": "oneToMany",
+      "relation": "manyToMany",
       "target": "api::artist-event.artist-event",
-      "mappedBy": "artist"
+      "mappedBy": "artists"
     },
-    "products": {
+    "profile_img": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "cover_img": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "users_permissions_user": {
       "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::product.product",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
       "mappedBy": "artist"
     }
   }

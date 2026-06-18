@@ -17,7 +17,8 @@
     },
     "correct_answer": {
       "type": "string",
-      "required": true
+      "required": true,
+      "regex": "^[a-d]$"
     },
     "option_a": {
       "type": "string",

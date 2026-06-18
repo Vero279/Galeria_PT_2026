@@ -18,8 +18,7 @@
     "slug": {
       "type": "uid",
       "targetField": "name",
-      "required": true,
-      "unique": true
+      "required": true
     },
     "image_url": {
       "type": "string",
@@ -28,10 +27,10 @@
     "description": {
       "type": "richtext"
     },
-    "is_published": {
+    "isPublished": {
       "type": "boolean",
       "required": true,
-      "default": true
+      "default": false
     },
     "artists": {
       "type": "relation",

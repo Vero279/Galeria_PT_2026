@@ -23,10 +23,15 @@
       "required": true
     },
     "location": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "image_url": {
       "type": "string"
+    },
+    "isPublished": {
+      "type": "boolean",
+      "default": false
     },
     "city": {
       "type": "relation",
@@ -34,11 +39,18 @@
       "target": "api::city.city",
       "inversedBy": "artist_events"
     },
-    "artist": {
+    "artists": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "manyToMany",
       "target": "api::artist.artist",
       "inversedBy": "artist_events"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }

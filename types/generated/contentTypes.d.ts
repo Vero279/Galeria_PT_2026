@@ -441,21 +441,23 @@ export interface ApiArtistEventArtistEvent extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    artist: Schema.Attribute.Relation<'manyToOne', 'api::artist.artist'>;
+    artists: Schema.Attribute.Relation<'manyToMany', 'api::artist.artist'>;
     city: Schema.Attribute.Relation<'manyToOne', 'api::city.city'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.RichText;
     event_date: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    image: Schema.Attribute.Media<'images'>;
     image_url: Schema.Attribute.String;
+    isPublished: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::artist-event.artist-event'
     > &
       Schema.Attribute.Private;
-    location: Schema.Attribute.String;
+    location: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -480,6 +482,7 @@ export interface ApiArtistQuizArtistQuiz extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.RichText;
+    isPublished: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -514,7 +517,7 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
   };
   attributes: {
     artist_events: Schema.Attribute.Relation<
-      'oneToMany',
+      'manyToMany',
       'api::artist-event.artist-event'
     >;
     artist_quiz: Schema.Attribute.Relation<
@@ -525,12 +528,13 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
     bio: Schema.Attribute.RichText;
     city: Schema.Attribute.Relation<'manyToOne', 'api::city.city'>;
     cover_image: Schema.Attribute.String;
+    cover_img: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    is_published: Schema.Attribute.Boolean &
+    isPublished: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<true>;
+      Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -538,15 +542,22 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     medium: Schema.Attribute.String;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
-    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
-    profile_image: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
-    slug: Schema.Attribute.UID<'name'> &
+    name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
-    total_reviews: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    profile_image: Schema.Attribute.String;
+    profile_img: Schema.Attribute.Media<'images'>;
+    publishedAt: Schema.Attribute.DateTime;
+    rating: Schema.Attribute.Decimal &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 5;
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -554,36 +565,10 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::user-discount.user-discount'
     >;
-  };
-}
-
-export interface ApiArtworkDescriptionArtworkDescription
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'artwork_descriptions';
-  info: {
-    displayName: 'Artwork Description';
-    pluralName: 'artwork-descriptions';
-    singularName: 'artwork-description';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    artwork: Schema.Attribute.Relation<'oneToOne', 'api::artwork.artwork'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.RichText & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::artwork-description.artwork-description'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -639,19 +624,22 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
   };
   attributes: {
     artist: Schema.Attribute.Relation<'manyToOne', 'api::artist.artist'>;
-    artwork_description: Schema.Attribute.Relation<
-      'oneToOne',
-      'api::artwork-description.artwork-description'
-    >;
     artwork_reviews: Schema.Attribute.Relation<
       'oneToMany',
       'api::artwork-review.artwork-review'
     >;
+    cart_items: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::cart-item.cart-item'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Blocks;
     dimensions: Schema.Attribute.String;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     image_url: Schema.Attribute.String & Schema.Attribute.Required;
+    isPublished: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -660,7 +648,6 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     medium: Schema.Attribute.String;
     price: Schema.Attribute.Decimal;
-    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -670,7 +657,14 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::wall-upload.wall-upload'
     >;
-    year: Schema.Attribute.Integer;
+    year: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 2100;
+          min: 1971;
+        },
+        number
+      >;
   };
 }
 
@@ -685,6 +679,7 @@ export interface ApiCartItemCartItem extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    artwork: Schema.Attribute.Relation<'manyToOne', 'api::artwork.artwork'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -694,7 +689,6 @@ export interface ApiCartItemCartItem extends Struct.CollectionTypeSchema {
       'api::cart-item.cart-item'
     > &
       Schema.Attribute.Private;
-    product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
     publishedAt: Schema.Attribute.DateTime;
     quantity: Schema.Attribute.Integer &
       Schema.Attribute.Required &
@@ -732,17 +726,15 @@ export interface ApiCityCity extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     description: Schema.Attribute.RichText;
     image_url: Schema.Attribute.String & Schema.Attribute.Required;
-    is_published: Schema.Attribute.Boolean &
+    isPublished: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<true>;
+      Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::city.city'> &
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'name'> &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -770,7 +762,6 @@ export interface ApiOrderItemOrderItem extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     order: Schema.Attribute.Relation<'manyToOne', 'api::order.order'>;
-    product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
     product_price: Schema.Attribute.Decimal & Schema.Attribute.Required;
     product_title: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
@@ -829,56 +820,6 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'pending'>;
     total_amount: Schema.Attribute.Decimal & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiProductProduct extends Struct.CollectionTypeSchema {
-  collectionName: 'products';
-  info: {
-    displayName: 'Product';
-    pluralName: 'products';
-    singularName: 'product';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    artist: Schema.Attribute.Relation<'manyToOne', 'api::artist.artist'>;
-    artwork: Schema.Attribute.Relation<'manyToOne', 'api::artwork.artwork'>;
-    cart_items: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::cart-item.cart-item'
-    >;
-    category: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'artwork'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    image_url: Schema.Attribute.String & Schema.Attribute.Required;
-    is_available: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<true>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::product.product'
-    > &
-      Schema.Attribute.Private;
-    order_items: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::order-item.order-item'
-    >;
-    price: Schema.Attribute.Decimal & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    stock_quantity: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<999>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1488,9 +1429,9 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
+    artist: Schema.Attribute.Relation<'oneToOne', 'api::artist.artist'>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1546,14 +1487,12 @@ declare module '@strapi/strapi' {
       'api::artist-event.artist-event': ApiArtistEventArtistEvent;
       'api::artist-quiz.artist-quiz': ApiArtistQuizArtistQuiz;
       'api::artist.artist': ApiArtistArtist;
-      'api::artwork-description.artwork-description': ApiArtworkDescriptionArtworkDescription;
       'api::artwork-review.artwork-review': ApiArtworkReviewArtworkReview;
       'api::artwork.artwork': ApiArtworkArtwork;
       'api::cart-item.cart-item': ApiCartItemCartItem;
       'api::city.city': ApiCityCity;
       'api::order-item.order-item': ApiOrderItemOrderItem;
       'api::order.order': ApiOrderOrder;
-      'api::product.product': ApiProductProduct;
       'api::quiz-answer.quiz-answer': ApiQuizAnswerQuizAnswer;
       'api::quiz-question.quiz-question': ApiQuizQuestionQuizQuestion;
       'api::user-discount.user-discount': ApiUserDiscountUserDiscount;

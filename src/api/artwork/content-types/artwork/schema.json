@@ -20,7 +20,9 @@
       "required": true
     },
     "year": {
-      "type": "integer"
+      "type": "integer",
+      "min": 1971,
+      "max": 2100
     },
     "medium": {
       "type": "string"
@@ -31,17 +33,14 @@
     "price": {
       "type": "decimal"
     },
+    "description": {
+      "type": "blocks"
+    },
     "artist": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::artist.artist",
       "inversedBy": "artworks"
-    },
-    "artwork_description": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::artwork-description.artwork-description",
-      "inversedBy": "artwork"
     },
     "artwork_reviews": {
       "type": "relation",
@@ -55,11 +54,23 @@
       "target": "api::wall-upload.wall-upload",
       "mappedBy": "artwork"
     },
-    "products": {
+    "cart_items": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::product.product",
+      "target": "api::cart-item.cart-item",
       "mappedBy": "artwork"
+    },
+    "isPublished": {
+      "type": "boolean",
+      "default": false
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }

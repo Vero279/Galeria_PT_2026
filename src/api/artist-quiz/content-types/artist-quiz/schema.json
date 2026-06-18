@@ -18,6 +18,10 @@
     "description": {
       "type": "richtext"
     },
+    "isPublished": {
+      "type": "boolean",
+      "default": false
+    },
     "artist": {
       "type": "relation",
       "relation": "oneToOne",

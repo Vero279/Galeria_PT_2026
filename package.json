@@ -16,9 +16,12 @@
     "seed": "node scripts/seed.js"
   },
   "dependencies": {
+    "@strapi/blocks-react-renderer": "^1.0.2",
     "@strapi/plugin-cloud": "5.43.0",
     "@strapi/plugin-users-permissions": "^5.43.0",
     "@strapi/strapi": "5.43.0",
+    "@supabase/supabase-js": "^2.105.4",
+    "axios": "^1.16.1",
     "pg": "8.20.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

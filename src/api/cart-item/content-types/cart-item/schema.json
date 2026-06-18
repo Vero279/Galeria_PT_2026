@@ -20,10 +20,10 @@
       "required": true,
       "min": 1
     },
-    "product": {
+    "artwork": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::product.product",
+      "target": "api::artwork.artwork",
       "inversedBy": "cart_items"
     }
   }
